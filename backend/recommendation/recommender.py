@@ -16,7 +16,14 @@ Run this file directly to test it:
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from data_prep import load_and_clean_data
+try:
+    # Works when recommender.py is imported as part of the
+    # 'recommendation' package (e.g. from app.py)
+    from .data_prep import load_and_clean_data
+except ImportError:
+    # Works when recommender.py is run directly:
+    # python recommendation/recommender.py
+    from data_prep import load_and_clean_data
 
 
 class MovieRecommender:
@@ -88,11 +95,15 @@ class MovieRecommender:
 
 
 if __name__ == "__main__":
-    # Quick manual test when running this file directly
-    recommender = MovieRecommender(
-        "../dataset/tmdb_5000_movies.csv",
-        "../dataset/tmdb_5000_credits.csv",
-    )
+    # Quick manual test when running this file directly.
+    # We build absolute paths based on this file's own location, so
+    # this works no matter which folder you run the command from.
+    import os
+    THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+    movies_path = os.path.join(THIS_DIR, "..", "..", "dataset", "tmdb_5000_movies.csv")
+    credits_path = os.path.join(THIS_DIR, "..", "..", "dataset", "tmdb_5000_credits.csv")
+
+    recommender = MovieRecommender(movies_path, credits_path)
 
     test_title = "Avatar"
     print(f"Movies similar to '{test_title}':\n")
